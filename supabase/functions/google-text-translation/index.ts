@@ -1,7 +1,10 @@
 // Edge Function — Traducteur Google Text Translation
 // Proxy sécurisé — INTEGRATIONS_API_KEY jamais exposé au client
+// v2 — validation longueur, timeout, retry, messages d'erreur lisibles
 
 import { handleOptions, errorResponse, jsonResponse } from '../_shared/cors.ts';
+
+const MAX_TEXT_LENGTH = 5000; // Limite Google Translate API
 
 Deno.serve(async (req: Request): Promise<Response> => {
   const origin = req.headers.get('origin');
@@ -9,7 +12,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   if (req.method === 'OPTIONS') return handleOptions(origin);
   if (req.method !== 'POST')    return errorResponse('Method Not Allowed', 405, origin);
 
-  // Parse la requête client
+  // Parse + validation stricte
   let q: string, target: string, source: string | undefined, format: string | undefined;
   try {
     const body = await req.json();
@@ -17,8 +20,12 @@ Deno.serve(async (req: Request): Promise<Response> => {
     target = body.target;
     source = body.source;
     format = body.format;
-    if (!q || typeof q !== 'string' || q.trim() === '') throw new Error("Paramètre 'q' manquant");
-    if (!target || typeof target !== 'string')           throw new Error("Paramètre 'target' manquant");
+    if (!q || typeof q !== 'string' || q.trim() === '')
+      throw new Error("Paramètre 'q' manquant ou vide");
+    if (!target || typeof target !== 'string')
+      throw new Error("Paramètre 'target' (langue cible) manquant");
+    if (q.length > MAX_TEXT_LENGTH)
+      throw new Error(`Texte trop long (${q.length} caractères, maximum ${MAX_TEXT_LENGTH})`);
   } catch (e) {
     return errorResponse(String(e), 400, origin);
   }
@@ -30,23 +37,48 @@ Deno.serve(async (req: Request): Promise<Response> => {
   if (source) requestBody.source = source;
   if (format) requestBody.format = format;
 
-  const upstream = await fetch(
-    'https://app-cfkom5or162p-api-GaDwZ8DX7jPY.gateway.appmedo.com/language/translate/v2',
-    {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Gateway-Authorization': `Bearer ${apiKey}` },
-      body:    JSON.stringify(requestBody),
-    },
-  );
-
-  if (upstream.status === 429 || upstream.status === 402) {
-    return new Response(await upstream.text(), {
-      status:  upstream.status,
-      headers: { 'Content-Type': 'application/json' },
-    });
+  // Appel avec timeout + retry unique
+  let upstream: Response | null = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    if (attempt > 0) await new Promise(r => setTimeout(r, 1_000));
+    try {
+      upstream = await fetch(
+        'https://app-cfkom5or162p-api-GaDwZ8DX7jPY.gateway.appmedo.com/language/translate/v2',
+        {
+          method:  'POST',
+          headers: {
+            'Content-Type':          'application/json',
+            'X-Gateway-Authorization': `Bearer ${apiKey}`,
+          },
+          body:   JSON.stringify(requestBody),
+          signal: AbortSignal.timeout(10_000),
+        },
+      );
+    } catch (err) {
+      const isTimeout = err instanceof Error && err.name === 'TimeoutError';
+      if (attempt === 0) continue;
+      return errorResponse(
+        isTimeout ? 'Délai dépassé — réessaie dans quelques secondes.' : 'Erreur réseau traducteur',
+        504,
+        origin,
+      );
+    }
+    if (upstream.ok) break;
+    if (upstream.status === 429 || upstream.status === 402) {
+      return new Response(await upstream.text(), {
+        status:  upstream.status,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    if (attempt === 0) { await upstream.body?.cancel(); upstream = null; continue; }
   }
-  if (!upstream.ok)
-    return errorResponse(`Erreur API: ${upstream.status}`, 502, origin);
+
+  if (!upstream?.ok)
+    return errorResponse(
+      `Erreur traduction (${upstream?.status ?? 'inconnu'}) — vérifie la langue cible.`,
+      502,
+      origin,
+    );
 
   return jsonResponse(await upstream.json(), origin);
 });

@@ -1,16 +1,36 @@
-// Edge Function — Tuteur IA Apprenix (Gemini 2.0 Flash Lite via API Gateway)
+// Edge Function — Tuteur IA Apprenix (Gemini 2.0 Flash via API Gateway)
 // Cache REST Supabase : économie ~50-70% quota (requêtes single-message uniquement)
 // Streaming SSE direct pour les conversations multi-tours.
+// v2 — modèle Flash (non Lite), 1500 tokens, 20 tours, meilleur prompt pédagogique
 
 import { makeCorsHeaders, handleOptions, errorResponse } from '../_shared/cors.ts';
 
-const MODEL          = 'gemini-2.0-flash-lite';
+const MODEL          = 'gemini-2.0-flash';
 const CACHE_TTL_DAYS = 7;
 
-const SYSTEM_PROMPT = `Tu es le tuteur IA d'Apprenix, plateforme scolaire française 100 % gratuite (CP → Bac+5).
-Règles : réponds en français, tutoie les élèves, sois encourageant et concis (5 phrases max sauf si on demande plus).
-Pour les devoirs : explique étape par étape, adapte au niveau scolaire français.
-Pour les questions hors scolaire : redirige poliment vers /aide-ia.`;
+const SYSTEM_PROMPT = `Tu es le tuteur IA d'Apprenix, plateforme scolaire française 100 % gratuite (CP → Bac+5, collège, lycée, BTS, licence).
+
+RÈGLES ABSOLUES :
+- Réponds TOUJOURS en français, tutoie l'élève, sois chaleureux et encourageant.
+- Sois précis et complet : explique chaque étape, ne saute aucune logique.
+- Adapte ton niveau de langage : CP-CM2 (vocabulaire simple), 6e-3e (rigueur collège), lycée (niveau bac), BTS/Licence (niveau supérieur).
+- Pour les maths et sciences : utilise des formules claires, donne un exemple numérique à chaque étape.
+- Pour le français / philo / langues : cite des exemples littéraires ou grammaticaux précis.
+- Pour l'histoire-géo : situe dans le contexte chronologique et géographique.
+- Si la question est hors scolaire ou inappropriée : redirige poliment vers le sujet scolaire.
+
+FORMAT DE RÉPONSE :
+- Commence par une validation encourageante si pertinent ("Bonne question !", "C'est un point important…").
+- Structure en étapes numérotées pour les démonstrations ou méthodes.
+- Termine par un conseil pratique ou une vérification ("Pour vérifier, tu peux…").
+- Utilise des exemples concrets tirés du programme scolaire français.
+- Maximum 8 étapes claires et détaillées sauf si on demande explicitement plus court.`;
+
+const GENERATION_CONFIG = {
+  maxOutputTokens: 1500,
+  temperature:     0.65,
+  topP:            0.9,
+};
 
 /** SHA-256 hex du contenu sérialisé — clé de cache */
 async function hashContents(contents: unknown[]): Promise<string> {
@@ -48,11 +68,11 @@ Deno.serve(async (req: Request): Promise<Response> => {
     if (!Array.isArray(contents) || contents.length === 0)
       throw new Error('contents manquant ou vide');
     // Garder les 10 derniers tours, tronquer les textes longs
-    contents = (contents as unknown[]).slice(-10);
+    contents = (contents as unknown[]).slice(-20);
     for (const item of contents as { role?: string; parts?: { text?: string }[] }[]) {
       for (const part of item?.parts ?? []) {
-        if (typeof part.text === 'string' && part.text.length > 2000)
-          part.text = part.text.slice(0, 2000);
+        if (typeof part.text === 'string' && part.text.length > 4000)
+          part.text = part.text.slice(0, 4000);
       }
     }
   } catch {
@@ -111,7 +131,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   const GATEWAY_URL  = `https://app-cfkom5or162p-api-VaOwP8E7dJqa.gateway.appmedo.com/v1beta/models/${MODEL}:streamGenerateContent?alt=sse`;
   const REQUEST_BODY = JSON.stringify({
     contents:         fullContents,
-    generationConfig: { maxOutputTokens: 800 },
+    generationConfig: GENERATION_CONFIG,
   });
   const MAX_ATTEMPTS = 3;
   const BACKOFF_MS   = [0, 1_000, 2_000];
