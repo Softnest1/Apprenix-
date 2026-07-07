@@ -1,9 +1,9 @@
 import {
-  AlertCircle, ArrowLeft, Calendar, CheckSquare, Clock, CreditCard,
-  Download, Eye, EyeOff, FileText, Flame, GraduationCap, Home, Info,
-  Loader2, Lock, LogOut, MessageCircle, Moon, Printer,
-  Send, Shield, Star, Sun,
-  Target, Trash2, Trophy, User, Zap,
+  AlertCircle, ArrowLeft, BookOpen, Brain, Calendar, CheckSquare, Clock, CreditCard,
+  Download, Eye, EyeOff, FileText, Flame, GraduationCap, Heart, Home, Info,
+  Languages, Lightbulb, Loader2, Lock, LogOut, Map, MessageCircle, Monitor, Moon, Music,
+  Printer, ScanLine, Send, Shield, Star, Sun,
+  Target, Trash2, Trophy, User, Users, Wrench, Zap,
 } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
@@ -648,6 +648,58 @@ const ParentsEspaceContent: React.FC = () => {
                 </Card>
               )}
 
+              {/* ── Outils disponibles pour votre enfant ────────────────── */}
+              <Card className="print:hidden">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Lightbulb className="w-4 h-4 text-primary" />
+                    Outils disponibles pour votre enfant
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-xs text-muted-foreground mb-4 text-pretty">
+                    Voici tous les outils gratuits accessibles depuis l'espace élève d'Apprenix.
+                    Votre enfant peut les utiliser à tout moment, sans abonnement.
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+                    {[
+                      { icon: BookOpen,      label: 'Aide aux devoirs',   desc: 'Explications IA pas-à-pas',     color: 'text-primary'  },
+                      { icon: ScanLine,      label: 'Scanner OCR',        desc: 'Photo → texte corrigé',         color: 'text-primary'  },
+                      { icon: CreditCard,    label: 'Flashcards SM-2',    desc: 'Mémorisation scientifique',     color: 'text-chart-2'  },
+                      { icon: Brain,         label: 'Quiz interactif',    desc: 'QCM vérifiés par des profs',    color: 'text-chart-2'  },
+                      { icon: Wrench,        label: 'Maths & Sciences',   desc: 'Calculs · formules',            color: 'text-chart-2'  },
+                      { icon: Languages,     label: 'Outils Langue',      desc: 'Conjugueur · traducteur',       color: 'text-chart-2'  },
+                      { icon: Map,           label: 'Carte mentale',      desc: 'Visualise les cours',           color: 'text-chart-2'  },
+                      { icon: Target,        label: 'Mode Examen',        desc: 'Simulation conditions réelles', color: 'text-chart-2'  },
+                      { icon: Calendar,      label: 'Planning',           desc: 'Agenda + Pomodoro',             color: 'text-chart-1'  },
+                      { icon: FileText,      label: 'Notes',              desc: 'Fiches par matière',            color: 'text-chart-1'  },
+                      { icon: Zap,           label: 'Deep Work',          desc: 'Concentration maximale',        color: 'text-chart-1'  },
+                      { icon: Trophy,        label: 'Motivation',         desc: 'Badges · streak · progrès',     color: 'text-chart-1'  },
+                      { icon: Music,         label: 'Chansons éducatives',desc: 'Apprendre en chanson',          color: 'text-chart-3'  },
+                      { icon: Monitor,       label: 'Classe virtuelle',   desc: 'Visioconférence pédagogique',   color: 'text-chart-3'  },
+                      { icon: Users,         label: 'Trouver un prof',    desc: 'Accompagnement personnalisé',   color: 'text-chart-3'  },
+                      { icon: Heart,         label: 'Communauté',         desc: 'Questions entre élèves',        color: 'text-chart-3'  },
+                    ].map(({ icon: Icon, label, desc, color }) => (
+                      <div key={label} className="flex items-start gap-2 rounded-lg border border-border/50 bg-muted/20 p-2.5">
+                        <Icon className={`w-4 h-4 shrink-0 mt-0.5 ${color}`} />
+                        <div className="min-w-0">
+                          <p className="text-xs font-semibold text-foreground leading-tight">{label}</p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5 text-pretty">{desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border/40 text-pretty">
+                    <strong className="text-foreground">Conseil :</strong> encouragez votre enfant à activer le{' '}
+                    <strong className="text-foreground">Planning Pomodoro</strong> pour des sessions d'étude de 25 min avec pauses.
+                    La répétition espacée des <strong className="text-foreground">Flashcards</strong> est la méthode la plus efficace scientifiquement pour mémoriser.
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* ── Messagerie parents-enseignants (Supabase) ───────────── */}
+              <MessagerieSection parentId={parentId} />
+
               {/* ── Déconnexion bas de page ─────────────────────────────── */}
               <div className="flex justify-center pt-2 print:hidden">
                 <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-destructive" onClick={handleDisconnect}>
@@ -655,9 +707,6 @@ const ParentsEspaceContent: React.FC = () => {
                   Quitter l'espace parents
                 </Button>
               </div>
-
-              {/* ── Messagerie parents-enseignants (Supabase) ───────────── */}
-              <MessagerieSection parentId={parentId} />
             </div>
           )}
         </div>

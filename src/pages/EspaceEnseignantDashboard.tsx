@@ -1,7 +1,7 @@
 import {
   BookOpen, Calendar, CheckCircle, ChevronRight,
   ClipboardList, HelpCircle, Info, Loader2, Mail,
-  Plus, TrendingUp, Users,
+  Plus, Share2, TrendingUp, Users,
 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -145,7 +145,8 @@ export default function EspaceEnseignantDashboard() {
               <strong className="text-white">Questions élèves</strong> : répondez aux demandes d'aide en attente ·{' '}
               <strong className="text-white">Copies</strong> : notez les travaux soumis ·{' '}
               <strong className="text-white">Contenus</strong> : publiez cours et fiches de révision ·{' '}
-              <strong className="text-white">Messagerie</strong> : échangez directement avec vos élèves.
+              <strong className="text-white">Messagerie</strong> : échangez directement avec vos élèves ·{' '}
+              <strong className="text-white">Collaborations</strong> : suivez vos espaces partagés actifs.
             </p>
           </div>
         </div>
@@ -162,20 +163,21 @@ export default function EspaceEnseignantDashboard() {
               <QuickLink icon={HelpCircle}    label="Questions élèves"   desc="Répondre et aider les élèves"            to="/espace-enseignant/questions"   badge={openQ}    badgeColor="bg-warning/15 text-warning-foreground" />
               <QuickLink icon={ClipboardList} label="Copies à corriger"  desc="Noter et commenter les travaux rendus"   to="/espace-enseignant/corrections" badge={pendingS} />
               <QuickLink icon={Users}         label="Demandes reçues"    desc="Accepter ou refuser les accompagnements" to="/espace-enseignant/demandes"    />
-              <QuickLink icon={Mail}          label="Chat élèves"        desc="Échanges directs dans les collaborations" to="/espace-enseignant/messagerie"  />
+              <QuickLink icon={Mail}          label="Messagerie élèves"  desc="Échanges directs avec vos élèves"        to="/espace-enseignant/messagerie"  />
+              <QuickLink icon={Share2}        label="Collaborations"     desc="Espaces de travail partagés actifs"      to="/espace-enseignant/collaborations" />
             </CardContent>
           </Card>
 
           <Card className="h-full">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <BookOpen className="w-4 h-4 text-primary" /> Contenus & Outils
+                <BookOpen className="w-4 h-4 text-primary" /> Contenus & Administration
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <QuickLink icon={BookOpen}  label="Mes contenus"  desc={`${contents.length} contenu(s) — cours, fiches, exercices`} to="/espace-enseignant/contenus"  />
-              <QuickLink icon={Calendar}  label="Mon agenda"    desc="Planifier et suivre les cours"                              to="/espace-enseignant/agenda"    />
-              <QuickLink icon={Users}     label="Mon profil"    desc="Mettre à jour mes informations enseignant"                  to="/espace-enseignant/profil"    />
+              <QuickLink icon={BookOpen}  label="Mes contenus"     desc={`${contents.length} contenu(s) — cours, fiches, exercices`} to="/espace-enseignant/contenus"  />
+              <QuickLink icon={Calendar}  label="Mon agenda"       desc="Planifier et suivre les cours"                              to="/espace-enseignant/agenda"    />
+              <QuickLink icon={Users}     label="Mon profil"       desc="Mettre à jour mes informations enseignant"                  to="/espace-enseignant/profil"    />
             </CardContent>
           </Card>
         </div>

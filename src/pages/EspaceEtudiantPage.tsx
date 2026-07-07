@@ -1,8 +1,9 @@
 import {
   ArrowRight, BookOpen, Brain, Calendar, CheckCircle, CheckSquare,
   Clock, CreditCard, FileText, GraduationCap, Heart,
-  History, Languages, Lock, ScanLine, ShieldCheck, Sparkles,
-  Star, Trophy, Users, Wrench, Zap,
+  History, Languages, Lock, Map, MessageCircle, Monitor,
+  Music, ScanLine, ShieldCheck, Sparkles,
+  Star, Target, Trophy, Users, Wrench, Zap,
 } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
@@ -98,27 +99,50 @@ const TOOL_CATS_ESPACE = [
     bg: 'bg-chart-1/10',
     border: 'border-chart-1/20',
   },
+  {
+    id: 'explorer',
+    label: 'Explorer & Collaborer',
+    color: 'text-chart-3',
+    bg: 'bg-chart-3/10',
+    border: 'border-chart-3/20',
+  },
 ] as const;
 type EspaceCatId = typeof TOOL_CATS_ESPACE[number]['id'];
 
-// ─── Outils clés ─────────────────────────────────────────────────────────────
+// ─── Outils clés (20 outils — tous les accès disponibles) ────────────────────
 const TOOLS: { icon: React.ElementType; label: string; desc: string; path: string; color: string; cat: EspaceCatId }[] = [
-  { icon: BookOpen,  label: 'Aide aux devoirs', desc: 'Explications pas-à-pas',     path: '/aide-ia',        color: 'text-primary',  cat: 'aide'      },
-  { icon: ScanLine,   label: 'Scanner',           desc: 'Photo → correction',          path: '/scanner',        color: 'text-primary',  cat: 'aide'      },
-  { icon: CreditCard, label: 'Flashcards',        desc: 'Répétition espacée SM-2',     path: '/flashcards',     color: 'text-chart-2',  cat: 'apprendre' },
-  { icon: Languages,  label: 'Outils Langue',     desc: 'Conjugueur · correcteur',     path: '/linguistique',   color: 'text-chart-2',  cat: 'apprendre' },
-  { icon: Wrench,     label: 'Maths & Sciences',  desc: 'Équations · formules',        path: '/maths-sciences', color: 'text-chart-2',  cat: 'apprendre' },
-  { icon: Calendar,   label: 'Planning',          desc: 'Pomodoro + to-do',            path: '/organisation',   color: 'text-chart-1',  cat: 'organiser' },
-  { icon: FileText,   label: 'Notes',             desc: 'Cours organisés par matière', path: '/notes',          color: 'text-chart-1',  cat: 'organiser' },
-  { icon: Trophy,     label: 'Motivation',        desc: 'Badges et streak',            path: '/motivation',     color: 'text-chart-1',  cat: 'organiser' },
+  // ── Aide & Devoirs ──
+  { icon: BookOpen,      label: 'Aide aux devoirs',   desc: 'Explications pas-à-pas',       path: '/aide-ia',           color: 'text-primary',  cat: 'aide'      },
+  { icon: ScanLine,      label: 'Scanner',             desc: 'Photo → texte corrigé',        path: '/scanner',           color: 'text-primary',  cat: 'aide'      },
+  { icon: MessageCircle, label: 'Communauté',          desc: 'Poser une question publique',  path: '/communaute',        color: 'text-primary',  cat: 'aide'      },
+  { icon: Users,         label: 'Trouver un prof',     desc: 'Accompagnement personnalisé',  path: '/trouver-enseignant',color: 'text-primary',  cat: 'aide'      },
+  // ── Réviser & Apprendre ──
+  { icon: CreditCard,    label: 'Flashcards',          desc: 'Répétition espacée SM-2',      path: '/flashcards',        color: 'text-chart-2',  cat: 'apprendre' },
+  { icon: Languages,     label: 'Outils Langue',       desc: 'Conjugueur · traducteur',      path: '/linguistique',      color: 'text-chart-2',  cat: 'apprendre' },
+  { icon: Wrench,        label: 'Maths & Sciences',    desc: 'Équations · formules',         path: '/maths-sciences',    color: 'text-chart-2',  cat: 'apprendre' },
+  { icon: Brain,         label: 'Quiz interactif',     desc: 'QCM vérifiés par des profs',   path: '/quiz',              color: 'text-chart-2',  cat: 'apprendre' },
+  { icon: Map,           label: 'Carte mentale',       desc: 'Visualise tes cours',          path: '/carte-mentale',     color: 'text-chart-2',  cat: 'apprendre' },
+  { icon: Target,        label: 'Mode Examen',         desc: 'Simulation conditions réelles',path: '/examen',            color: 'text-chart-2',  cat: 'apprendre' },
+  { icon: FileText,      label: 'Ressources',          desc: 'Fiches · cours · annales',     path: '/ressources',        color: 'text-chart-2',  cat: 'apprendre' },
+  { icon: Music,         label: 'Chansons éducatives', desc: 'Apprendre en chantant',        path: '/chansons-educatives',color: 'text-chart-2', cat: 'apprendre' },
+  // ── Organiser & Suivre ──
+  { icon: Calendar,      label: 'Planning',            desc: 'Agenda + to-do + Pomodoro',    path: '/organisation',      color: 'text-chart-1',  cat: 'organiser' },
+  { icon: FileText,      label: 'Notes',               desc: 'Cours organisés par matière',  path: '/notes',             color: 'text-chart-1',  cat: 'organiser' },
+  { icon: Trophy,        label: 'Motivation',          desc: 'Badges · streak · progrès',    path: '/motivation',        color: 'text-chart-1',  cat: 'organiser' },
+  { icon: Zap,           label: 'Deep Work',           desc: 'Focus maximal sans distraction',path: '/focus',            color: 'text-chart-1',  cat: 'organiser' },
+  // ── Explorer & Collaborer ──
+  { icon: Monitor,       label: 'Classe virtuelle',    desc: 'Visioconférence pédagogique',  path: '/visio',             color: 'text-chart-3',  cat: 'explorer'  },
+  { icon: Heart,         label: 'Mes collaborations',  desc: 'Espaces partagés avec profs',  path: '/mes-collaborations',color: 'text-chart-3',  cat: 'explorer'  },
+  { icon: CheckSquare,   label: 'Mes demandes',        desc: 'Suivi accompagnements',        path: '/mes-demandes',      color: 'text-chart-3',  cat: 'explorer'  },
+  { icon: History,       label: 'Mes questions',       desc: 'Historique posté en communauté',path: '/mes-questions',   color: 'text-chart-3',  cat: 'explorer'  },
 ];
 
 // ─── Stats ────────────────────────────────────────────────────────────────────
 const STATS = [
-  { value: '100 %',  label: 'Gratuit pour toujours' },
-  { value: '0 pub',  label: 'Zéro publicité' },
-  { value: '8 outils', label: 'Inclus sans abonnement' },
-  { value: 'E2E',    label: 'Données chiffrées' },
+  { value: '100 %',    label: 'Gratuit pour toujours' },
+  { value: '0 pub',    label: 'Zéro publicité' },
+  { value: '20 outils', label: 'Inclus sans abonnement' },
+  { value: 'E2E',      label: 'Données chiffrées' },
 ];
 
 // ─── Page principale ──────────────────────────────────────────────────────────
@@ -162,7 +186,7 @@ const EspaceEtudiantPage: React.FC = () => {
     <div className="min-h-dvh w-full bg-background">
       <SEO
         title="Espace Étudiant — Outils scolaires gratuits | Apprenix"
-        description="Aide aux devoirs, flashcards, scanner, planning Pomodoro et 8 outils pour tous les niveaux — 100 % gratuit, sans pub, sans compte obligatoire."
+        description="Aide aux devoirs, flashcards, scanner, quiz, carte mentale, planning Pomodoro et 20 outils pour tous les niveaux — 100 % gratuit, sans pub, sans compte obligatoire."
         canonical="/espace"
         noIndex={false}
         dateModified="2026-06-25"
@@ -304,7 +328,7 @@ const EspaceEtudiantPage: React.FC = () => {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-xl md:text-2xl font-bold text-foreground text-balance">
-              8 outils inclus dans ton compte gratuit
+              20 outils inclus dans ton compte gratuit
             </h2>
             <p className="text-sm text-muted-foreground mt-1 text-pretty">
               Chaque outil fonctionne seul ou ensemble — tout est synchronisé.
