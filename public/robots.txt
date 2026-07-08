@@ -1,0 +1,159 @@
+# robots.txt — Apprenix
+# Dernière mise à jour : 2026-06-18
+# Plateforme éducative 100% gratuite — https://apprenix.xyz
+# Domaine canonique (Yandex)
+Host: apprenix.xyz
+
+# ── Moteurs légitimes : accès complet ────────────────────────────────────────
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /.env
+Disallow: /node_modules/
+
+# ── Moteurs spécifiques : crawl-delay conseillé ───────────────────────────────
+User-agent: Yandexbot
+Allow: /
+Crawl-delay: 5
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 5
+
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 5
+
+User-agent: Naverbot
+Allow: /
+Crawl-delay: 5
+
+User-agent: Teoma
+Allow: /
+
+# ── Bots SEO — limiter le crawl budget ───────────────────────────────────────
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+User-agent: MJ12bot
+Disallow: /
+
+# ── Crawlers IA — INTERDITS (entraînement LLM / RAG / data mining) ───────────
+# OpenAI
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: OAI-SearchBot
+Disallow: /
+
+# Anthropic
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: Anthropic-AI
+Disallow: /
+
+# Google IA (séparé de Googlebot)
+User-agent: Google-Extended
+Disallow: /
+
+# Meta IA
+User-agent: Meta-ExternalAgent
+Disallow: /
+
+User-agent: Meta-ExternalFetcher
+Disallow: /
+
+# Amazon Alexa / AWS AI
+User-agent: Amazonbot
+Disallow: /
+
+# ByteDance / TikTok
+User-agent: Bytespider
+Disallow: /
+
+# CommonCrawl — utilisé pour datasets LLM
+User-agent: CCBot
+Disallow: /
+
+# Cohere
+User-agent: cohere-ai
+Disallow: /
+
+# Allen Institute AI (AI2)
+User-agent: ai2-bot
+Disallow: /
+
+# Apple IA (séparé de Applebot)
+User-agent: Applebot-Extended
+Disallow: /
+
+# Perplexity AI
+User-agent: PerplexityBot
+Disallow: /
+
+# You.com AI
+User-agent: YouBot
+Disallow: /
+
+# Huawei PanGu
+User-agent: PanguBot
+Disallow: /
+
+# Timpi AI search
+User-agent: Timpibot
+Disallow: /
+
+# ICC research crawler
+User-agent: ICC-Crawler
+Disallow: /
+
+# FriendlyCrawler (harvest)
+User-agent: FriendlyCrawler
+Disallow: /
+
+# Omgili / WebzIO — training data
+User-agent: Omgilibot
+Disallow: /
+
+User-agent: omgili
+Disallow: /
+
+# Scrapy — framework scraping souvent utilisé pour datasets IA
+User-agent: Scrapy
+Disallow: /
+
+# Diffbot — extraction structurée / LLM
+User-agent: Diffbot
+Disallow: /
+
+# FacebookBot — social (accès limité)
+User-agent: FacebookBot
+Allow: /
+Crawl-delay: 5
+
+# ── Scrapers de contenu ───────────────────────────────────────────────────────
+User-agent: SiteAuditor
+Disallow: /
+
+User-agent: DataForSeoBot
+Disallow: /
+
+User-agent: PetalBot
+Crawl-delay: 30
+
+# ── Page accessibilité toujours accessible ───────────────────────────────────
+Allow: /accessibilite
+
+# ── Sitemaps ──────────────────────────────────────────────────────────────────
+Sitemap: https://apprenix.xyz/sitemap.xml
+Sitemap: https://apprenix.xyz/sitemap-index.xml

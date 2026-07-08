@@ -1,0 +1,57 @@
+INSERT INTO knowledge_base (subject, level, question_text, tags, answer_text, answer_steps, teacher_name, validated, quality_score) VALUES
+
+('Maths', 'Supérieur Licence 1',
+ 'Comment calculer une intégrale par parties ∫u dv = uv − ∫v du ?',
+ ARRAY['intégrale','intégration par parties','analyse','licence'],
+ 'L''intégration par parties est basée sur la formule ∫u dv = uv − ∫v du. Elle permet de transformer une intégrale complexe en une plus simple.',
+ '[{"step":1,"title":"Identifier u et dv","text":"Choix stratégique : u se dérive facilement, dv s''intègre facilement. Règle LIATE : Logarithme > Inverse > Algébrique > Trigonométrique > Exponentielle."},{"step":2,"title":"Calculer du et v","text":"Dériver u pour obtenir du, intégrer dv pour obtenir v."},{"step":3,"title":"Appliquer la formule","text":"∫u dv = [uv] − ∫v du. Substituer les expressions trouvées."},{"step":4,"title":"Exemple : ∫x·eˣ dx","text":"u = x → du = dx ; dv = eˣ dx → v = eˣ. Résultat : x·eˣ − ∫eˣ dx = x·eˣ − eˣ + C = eˣ(x−1) + C"},{"step":5,"title":"Vérification","text":"Dériver le résultat doit redonner la fonction initiale."}]',
+ 'Prof. Moreau — Maître de conférences Maths', true, 5),
+
+('Français', 'Supérieur Licence 2',
+ 'Comment structurer un commentaire de texte littéraire en université ?',
+ ARRAY['commentaire','texte','méthode','licence','littérature'],
+ 'Le commentaire universitaire est plus rigoureux que le lycée : il exige une problématique précise, des axes argumentés et une lecture analytique fine.',
+ '[{"step":1,"title":"Lecture active","text":"Annoter le texte : figures de style, tonalité, structure, registre, temps verbaux, champs lexicaux."},{"step":2,"title":"La problématique","text":"Une question qui soulève la singularité du texte. Éviter ''comment l''auteur...'' → préférer une tension : ''En quoi ce texte subvertit-il...''"},{"step":3,"title":"Le plan","text":"2 ou 3 axes thématiques (non linéaires). Chaque axe = 2-3 sous-parties avec citation + analyse."},{"step":4,"title":"L''introduction","text":"Présentation de l''œuvre/auteur, situation du passage, problématique, annonce du plan."},{"step":5,"title":"La conclusion","text":"Réponse synthétique à la problématique + ouverture sur une problématique plus large."}]',
+ 'Dr. Chevalier — MCF Lettres modernes', true, 5),
+
+('Physique', 'Supérieur Licence 1',
+ 'Qu''est-ce que la loi de Gauss en électrostatique et comment l''appliquer ?',
+ ARRAY['gauss','électrostatique','flux','licence','physique'],
+ 'La loi de Gauss stipule que le flux du champ électrique à travers toute surface fermée est égal à la charge intérieure divisée par ε₀.',
+ '[{"step":1,"title":"Énoncé","text":"∮ E⃗·dS⃗ = Q_int / ε₀  où ε₀ = 8,85×10⁻¹² F/m (permittivité du vide)."},{"step":2,"title":"Choisir la surface de Gauss","text":"Surface fermée virtuelle qui exploite la symétrie du problème : sphère, cylindre ou plan selon la géométrie de la distribution de charges."},{"step":3,"title":"Calculer le flux","text":"Avec une bonne symétrie, E est constant et perpendiculaire → ∮ E·dS = E × S."},{"step":4,"title":"Application : sphère chargée","text":"Surface sphérique de rayon r > R : E × 4πr² = Q/ε₀ → E = Q/(4πε₀r²) = loi de Coulomb."},{"step":5,"title":"Cas r < R (intérieur conducteur)","text":"Q_int = 0 → E = 0 à l''intérieur d''un conducteur en équilibre."}]',
+ 'Prof. Lambert — Maître de conférences Physique', true, 5),
+
+('Histoire', 'Supérieur Licence 2',
+ 'Qu''est-ce que la méthode historique critique et ses étapes ?',
+ ARRAY['méthode','source','critique','licence','historiographie'],
+ 'La méthode historique critique est le protocole rigoureux permettant d''évaluer la fiabilité d''une source avant de l''utiliser comme preuve.',
+ '[{"step":1,"title":"Heuristique","text":"Collecte des sources : archives, témoignages, objets, images. Identifier leur nature (primaire/secondaire)."},{"step":2,"title":"Critique externe","text":"Authenticité de la source : date, auteur, support matériel. Est-elle un original ou une copie ? Un faux ?"},{"step":3,"title":"Critique interne","text":"Fiabilité du contenu : l''auteur était-il témoin ? A-t-il pu mentir ou se tromper ? Croisement avec d''autres sources."},{"step":4,"title":"Interprétation","text":"Contextualisation : replacer le document dans son époque, ses enjeux politiques, sociaux, culturels."},{"step":5,"title":"Synthèse","text":"Construction du récit historique à partir de sources recoupées et analysées."}]',
+ 'Prof. Rousseau — Maître de conférences Histoire', true, 5),
+
+('Maths', 'Primaire CM1',
+ 'Comment poser et calculer une multiplication posée (ex : 234 × 6) ?',
+ ARRAY['multiplication','CM1','primaire','calcul'],
+ 'La multiplication posée se fait chiffre par chiffre de droite à gauche, en n''oubliant pas les retenues.',
+ '[{"step":1,"title":"Écrire la multiplication","text":"234 × 6 : écrire le grand nombre en haut, le multiplicateur en bas à droite."},{"step":2,"title":"Multiplier les unités","text":"6 × 4 = 24 : écrire 4 et retenir 2."},{"step":3,"title":"Multiplier les dizaines","text":"6 × 3 = 18, + 2 (retenue) = 20 : écrire 0 et retenir 2."},{"step":4,"title":"Multiplier les centaines","text":"6 × 2 = 12, + 2 (retenue) = 14 : écrire 14."},{"step":5,"title":"Résultat","text":"234 × 6 = 1 404. Vérifier avec une estimation : 200 × 6 = 1 200 → cohérent."}]',
+ 'Mme Petit — Professeure des écoles CM1', true, 5),
+
+('Français', 'Primaire CE2',
+ 'Comment reconnaître et utiliser les temps du passé : passé composé vs imparfait ?',
+ ARRAY['passé composé','imparfait','CE2','conjugaison','primaire'],
+ 'Le passé composé exprime une action terminée et précise, l''imparfait une action qui durait ou se répétait.',
+ '[{"step":1,"title":"Le passé composé","text":"Action finie, ponctuelle. Formule : auxiliaire (avoir/être) au présent + participe passé. Ex : ''J''ai mangé une pomme.''"},{"step":2,"title":"L''imparfait","text":"Action qui durait, se répétait ou décrivait. Terminaisons : -ais, -ais, -ait, -ions, -iez, -aient. Ex : ''Il mangeait souvent des pommes.''"},{"step":3,"title":"Astuce mémo","text":"Passé composé = photo (instant précis). Imparfait = film (durée, habitude)."},{"step":4,"title":"Dans un récit","text":"Imparfait pour le décor et les descriptions. Passé composé pour les actions qui font avancer l''histoire."},{"step":5,"title":"Exercice","text":"''Hier, je (jouer) au foot quand soudain il (commencer) à pleuvoir.'' → jouais / a commencé."}]',
+ 'M. Garnier — Professeur des écoles CE2', true, 5),
+
+('SVT', 'Primaire CM2',
+ 'Comment fonctionne la photosynthèse et pourquoi est-elle importante ?',
+ ARRAY['photosynthèse','plantes','CM2','sciences','primaire'],
+ 'La photosynthèse est le processus par lequel les plantes fabriquent leur nourriture à partir de la lumière du soleil, de l''eau et du CO₂.',
+ '[{"step":1,"title":"Les ingrédients","text":"Les plantes ont besoin de 3 choses : lumière du soleil (énergie), eau (H₂O) absorbée par les racines, dioxyde de carbone (CO₂) absorbé par les feuilles."},{"step":2,"title":"La chlorophylle","text":"Le pigment vert des feuilles (chlorophylle) capte la lumière. C''est pourquoi les plantes sont vertes."},{"step":3,"title":"Ce qui est produit","text":"La plante fabrique du glucose (sucre = nourriture) et rejette de l''oxygène (O₂) dans l''air."},{"step":4,"title":"La formule simplifiée","text":"CO₂ + H₂O + lumière → glucose + O₂"},{"step":5,"title":"Pourquoi c''est important","text":"Sans photosynthèse : pas de nourriture pour les plantes → pas de nourriture pour les animaux → pas d''oxygène dans l''air."}]',
+ 'Mme Faure — Professeure des écoles CM2', true, 5),
+
+('Anglais', 'Supérieur Licence 1',
+ 'How to use the present perfect vs simple past in English?',
+ ARRAY['present perfect','simple past','grammar','licence','anglais'],
+ 'The present perfect connects past actions to the present. The simple past refers to finished actions at a specific time.',
+ '[{"step":1,"title":"Simple past","text":"Use for completed actions at a specific past time. Signal words: yesterday, last year, in 2010, ago. Ex: ''I saw that film last night.''"},{"step":2,"title":"Present perfect","text":"Use when no specific time is given, or when the result matters now. Formula: have/has + past participle. Ex: ''I have seen that film.'' (= I know it)"},{"step":3,"title":"Key contrast","text":"''I lived in Paris for 3 years.'' (no longer there) vs ''I have lived in Paris for 3 years.'' (still there now)"},{"step":4,"title":"Signal words","text":"Present perfect: already, yet, just, ever, never, since, for, recently. Simple past: last, ago, yesterday, in [year]."},{"step":5,"title":"Common error","text":"WRONG: ''I have seen him yesterday.'' RIGHT: ''I saw him yesterday.'' (specific time → simple past)"}]',
+ 'Dr. Wilson — Lecturer in English', true, 5);
