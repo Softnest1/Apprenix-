@@ -763,40 +763,152 @@ html[data-a11y-presentation="true"] {
    forced-colors remplace les couleurs CSS par les couleurs système Windows.
    On restaure uniquement les éléments qui ont besoin d'un traitement spécial.
 ──────────────────────────────────────────────────────────────────────────── */
-/* ── Ultra-grands écrans : 3XL (2000px+) et 4K (2560px+) ────────────────────
-   TV, projecteur de classe, écran 4K/UHD, cinéma.
+/* ── Ultra-grands écrans : 3XL (2000px+), 4K (2560px+), Cinéma (3200px+) ────
+   TV, projecteur de classe, écran 4K/UHD, cinéma, home cinema.
    Augmentation des tailles de texte, espacement et max-width pour garantir
    la lisibilité à distance (≥ 2 m) sans zoom navigateur.
+   Overscan compensation : padding 2.5% sur TV anciennes (bords rognés).
 ──────────────────────────────────────────────────────────────────────────── */
 @media (min-width: 2000px) {
-  :root {
-    font-size: 18px;
-  }
+  :root { font-size: 18px; }
   .container { max-width: 1800px; }
+  /* Compensation overscan TV (bords rognés sur anciens téléviseurs) */
+  body {
+    padding-left:  max(env(safe-area-inset-left),  2.5vw);
+    padding-right: max(env(safe-area-inset-right), 2.5vw);
+  }
 }
 
 @media (min-width: 2560px) {
-  :root {
-    font-size: 20px;
-  }
+  :root { font-size: 20px; }
   .container { max-width: 2200px; }
-  /* Taille minimale 20px pour tout texte body */
-  body { font-size: 1.1rem; }
+  body { padding-left: max(env(safe-area-inset-left), 3vw); padding-right: max(env(safe-area-inset-right), 3vw); }
 }
 
+/* Cinéma 4K / grand écran home cinema ≥ 3200px */
 @media (min-width: 3200px) {
-  :root {
-    font-size: 24px;
-  }
+  :root { font-size: 24px; }
   .container { max-width: 2800px; }
+  body { padding-left: max(env(safe-area-inset-left), 4vw); padding-right: max(env(safe-area-inset-right), 4vw); }
 }
 
-/* ── Mode projecteur / TV — hauteur écran basse (16:9 < 800px) ──────────────
+/* ── TV / Projecteur — hauteur écran basse (16:9 ≤ 800px) ───────────────────
    Projecteurs de classe et TV en mode cinéma : résolution large mais peu haute.
-   Adaptation densité verticale.
+   Réduit le padding vertical pour éviter le scroll sur scène.
 ──────────────────────────────────────────────────────────────────────────── */
-@media (min-width: 1024px) and (max-height: 768px) {
+@media (min-width: 1024px) and (max-height: 800px) {
   .hero-section { min-height: auto !important; padding-top: 2rem; padding-bottom: 2rem; }
+  /* Réduire les espaces verticaux dans les sections */
+  section { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+}
+
+/* ── Voiture / Écran embarqué — paysage compact (hauteur ≤ 380px) ────────────
+   Écrans de tableau de bord, CarPlay-like, terminaux portables paysage.
+   Masquer les éléments non essentiels, agrandir les zones de tap.
+──────────────────────────────────────────────────────────────────────────── */
+@media (max-height: 380px) and (orientation: landscape) {
+  /* Masquer les éléments décoratifs et non-critiques */
+  .hero-section .hero-illustration,
+  .hero-section .hero-badge,
+  footer .footer-links-extra { display: none !important; }
+  /* Taille de police minimum lisible sur petit écran embarqué */
+  :root { font-size: 14px; }
+  /* Targets de tap plus larges pour conduite / doigts gantés */
+  button, a, [role="button"], input, select, textarea {
+    min-height: 52px !important;
+  }
+  /* Sidebar masquée → navigation simplifiée en haut */
+  aside { display: none !important; }
+}
+
+/* ── Télécommande / D-pad / TV sans souris ───────────────────────────────────
+   pointer: none  = télécommande TV, D-pad sans pointeur visible
+   hover: none    = pas de survol souris disponible
+   Renforce le focus ring et adapte les cibles.
+   Compatible : HbbTV, LG webOS, Samsung Tizen, Android TV, Fire TV, Roku.
+──────────────────────────────────────────────────────────────────────────── */
+@media (pointer: none), (hover: none) and (pointer: coarse) {
+  /* Focus ring ultra-visible pour navigation D-pad à distance */
+  *:focus-visible {
+    outline: 4px solid hsl(var(--primary)) !important;
+    outline-offset: 4px !important;
+    box-shadow: 0 0 0 8px hsl(var(--primary) / 0.25) !important;
+  }
+  /* Cibles navigables plus larges */
+  button, a, [role="button"], [role="menuitem"], [role="option"] {
+    min-height: 56px;
+    min-width: 56px;
+  }
+}
+
+/* ── Mode tactile — zones de tap 48px minimum (WCAG 2.5.8) ───────────────────
+   Appliqué sur téléphone, tablette, écran tactile voiture, tv tactile.
+──────────────────────────────────────────────────────────────────────────── */
+@media (pointer: coarse) {
+  button, a, [role="button"], input[type="checkbox"], input[type="radio"],
+  input[type="range"], select, [role="switch"] {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
+
+/* ── Mode PWA standalone / fullscreen ───────────────────────────────────────
+   Quand l'app est lancée en mode PWA (sans chrome navigateur) :
+   - Masquer les éléments de navigation "Installer l'app"
+   - Adapter les paddings au viewport réel (pas de barre d'adresse)
+──────────────────────────────────────────────────────────────────────────── */
+@media (display-mode: standalone), (display-mode: fullscreen),
+       (display-mode: window-controls-overlay) {
+  /* Masquer la bannière d'installation (déjà installée) */
+  [data-pwa-install-banner] { display: none !important; }
+  /* Utiliser tout le viewport disponible */
+  #root { min-height: 100dvh; }
+}
+
+/* ── Mode projecteur enseignant niveaux 2 & 3 ───────────────────────────────
+   Niveau 2 = projecteur de classe (4–6m) : police 28px, fort contraste
+   Niveau 3 = cinéma / TV 4K (> 6m) : police 36px, très fort contraste
+   Activés via data-a11y-presentation="class" et "cinema" sur <html>.
+──────────────────────────────────────────────────────────────────────────── */
+html[data-a11y-presentation="class"] {
+  font-size: 28px;
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 0%;
+  --muted-foreground: 0 0% 10%;
+  --border: 0 0% 18%;
+  --primary: 220 100% 30%;
+  --primary-foreground: 0 0% 100%;
+}
+
+html[data-a11y-presentation="cinema"] {
+  font-size: 38px;
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 0%;
+  --muted-foreground: 0 0% 8%;
+  --border: 0 0% 15%;
+  --primary: 220 100% 28%;
+  --primary-foreground: 0 0% 100%;
+  /* Masquer les sidebars et éléments secondaires sur grand écran distant */
+}
+html[data-a11y-presentation="cinema"] aside,
+html[data-a11y-presentation="cinema"] .sidebar-nav {
+  display: none !important;
+}
+
+/* Mode sombre projecteur (fond noir, texte blanc — meilleur en salle obscure) */
+html[data-a11y-presentation="true"].dark,
+html[data-a11y-presentation="class"].dark,
+html[data-a11y-presentation="cinema"].dark {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 5%;
+  --card-foreground: 0 0% 100%;
+  --muted-foreground: 0 0% 90%;
+  --border: 0 0% 30%;
 }
 
 /* ── Animation compteur ──────────────────────────────────────────────────── */
@@ -813,6 +925,16 @@ html[data-a11y-presentation="true"] {
   /* Appareils tactiles : agrandir zones de tap */
   button, a, [role="button"] { min-height: 44px; min-width: 44px; }
 }
+
+/* ── Scrollbar fine (TV, tablette, desktop) ─────────────────────────────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
+}
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground) / 0.5); }
 
 @media (forced-colors: active) {
   /* Préserver les dégradés de progression (barres XP, streaks) */

@@ -1,11 +1,21 @@
 <!DOCTYPE html>
-<!-- v1633 -->
+<!-- v1800 -->
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
 
-    <!-- ── Viewport — compatible tous appareils (iPhone SE → iPad Pro → 4K) ── -->
+    <!-- ── Viewport — compatible tous appareils ──────────────────────────────
+         iPhone SE / 12 mini → iPhone 16 Pro Max → iPad Pro → 4K / TV / Cinéma
+         viewport-fit=cover : support Dynamic Island, notch, home bar (iOS 11+)
+         Pas de maximum-scale : autoriser le zoom accessibilité utilisateur
+    ─────────────────────────────────────────────────────────────────────── -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- ── Compatibilité navigateurs embarqués / TV / voiture ───────────────
+         IE11, Edge Legacy, Samsung Internet, Mi Browser, TV HbbTV, Android Auto
+    ─────────────────────────────────────────────────────────────────────── -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="MobileOptimized" content="320" />
 
     <!-- ══════════════════════════════════════════════════════════════════════
          SEO FONDAMENTAL — titre & description stratégiques
