@@ -1,7 +1,7 @@
 // Bannière hors-ligne + bouton d'installation PWA
 // Les mises à jour SW sont appliquées automatiquement (silencieusement)
 
-import { BookOpen, Brain, Calendar, Download, Wifi, WifiOff, X } from 'lucide-react';
+import { BookOpen, Brain, Calendar, Download, Share2, Wifi, WifiOff, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -15,10 +15,10 @@ const OFFLINE_FEATURES = [
 ];
 
 export default function OfflineBanner() {
-  const [isOffline, setIsOffline]     = useState(!navigator.onLine);
-  const [expanded, setExpanded]       = useState(false);
-  const { canInstall, isInstalled, triggerInstall } = usePWAInstall();
-  const [dismissed, setDismissed]     = useState(false);
+  const [isOffline, setIsOffline]         = useState(!navigator.onLine);
+  const [expanded, setExpanded]           = useState(false);
+  const [showIosHint, setShowIosHint]     = useState(false);
+  const { canInstall, isInstalled, platform, triggerInstall, dismiss, dismissed } = usePWAInstall();
 
   // Mise à jour SW automatique — silencieuse, sans bannière
   useEffect(() => {
@@ -34,9 +34,11 @@ export default function OfflineBanner() {
     navigator.serviceWorker.getRegistration().then(reg => {
       if (!reg) return;
       if (reg.waiting) { applyUpdateSilently(reg); return; }
-      const onUpdate = () => { if (reg.waiting) applyUpdateSilently(reg); };
       reg.addEventListener('updatefound', () => {
-        reg.installing?.addEventListener('statechange', onUpdate);
+        reg.installing?.addEventListener('statechange', () => {
+          if (reg.installing?.state === 'installed' && navigator.serviceWorker.controller)
+            applyUpdateSilently(reg);
+        });
       });
     });
 
@@ -82,6 +84,11 @@ export default function OfflineBanner() {
   }, []);
 
   const handleInstall = async () => {
+    // iOS Safari — pas de prompt natif, afficher les instructions manuelles
+    if (platform === 'ios') {
+      setShowIosHint(v => !v);
+      return;
+    }
     const outcome = await triggerInstall();
     if (outcome === 'accepted') {
       toast.success('Apprenix installé !', {
@@ -90,9 +97,16 @@ export default function OfflineBanner() {
     }
   };
 
-  const showInstall = canInstall && !isInstalled && !dismissed && !isOffline;
+  const handleDismiss = () => {
+    dismiss();
+    setShowIosHint(false);
+  };
 
-  if (!isOffline && !showInstall) return null;
+  // Sur iOS Safari sans prompt natif, proposer quand même si pas installé
+  const showIosBanner = platform === 'ios' && !isInstalled && !dismissed && !isOffline;
+  const showInstallBanner = (canInstall && !isInstalled && !dismissed && !isOffline) || showIosBanner;
+
+  if (!isOffline && !showInstallBanner) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none px-3 pb-3">
@@ -100,7 +114,6 @@ export default function OfflineBanner() {
       {/* ── Bannière hors-ligne — prioritaire ─────────────────────────── */}
       {isOffline ? (
         <div className="pointer-events-auto flex flex-col gap-0 bg-destructive text-destructive-foreground rounded-xl shadow-lg max-w-lg mx-auto w-full overflow-hidden">
-          {/* Ligne principale */}
           <div className="flex items-center gap-3 px-4 py-3">
             <WifiOff className="w-4 h-4 shrink-0" />
             <div className="flex-1 min-w-0">
@@ -125,7 +138,6 @@ export default function OfflineBanner() {
             </div>
           </div>
 
-          {/* Détail des fonctions dispo — accordéon */}
           {expanded && (
             <div className="px-4 pb-3 border-t border-white/20 pt-2.5">
               <p className="text-xs opacity-70 mb-2 font-medium uppercase tracking-wide">
@@ -143,40 +155,56 @@ export default function OfflineBanner() {
                 ))}
               </div>
               <p className="text-xs opacity-60 mt-2.5 text-pretty">
-                💡 Pour un accès hors ligne optimal en forêt ou en montagne,
-                installez Apprenix sur votre écran d'accueil.
+                💡 Installez Apprenix sur votre écran d'accueil pour un accès hors ligne optimal.
               </p>
             </div>
           )}
         </div>
 
-      ) : showInstall ? (
-        /* ── Bannière installation PWA — uniquement si en ligne ────────── */
-        <div className="pointer-events-auto flex items-center gap-3 bg-card border border-border rounded-xl px-4 py-3 shadow-lg max-w-lg mx-auto w-full">
-          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            <Download className="w-4 h-4 text-primary" />
+      ) : showInstallBanner ? (
+        /* ── Bannière installation PWA ──────────────────────────────── */
+        <div className="pointer-events-auto flex flex-col gap-0 bg-card border border-border rounded-xl shadow-lg max-w-lg mx-auto w-full overflow-hidden">
+          <div className="flex items-center gap-3 px-4 py-3">
+            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <Download className="w-4 h-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground leading-tight">
+                Installer Apprenix
+              </p>
+              <p className="text-xs text-muted-foreground text-pretty">
+                Accès hors ligne · Fonctionne sans connexion · Lanceur rapide
+              </p>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <Button size="sm" className="h-8 text-xs" onClick={handleInstall}>
+                {platform === 'ios' ? <Share2 className="w-3 h-3 mr-1" /> : null}
+                Installer
+              </Button>
+              <button
+                type="button"
+                onClick={handleDismiss}
+                className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground"
+                aria-label="Fermer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-foreground leading-tight text-balance">
-              Installer Apprenix
-            </p>
-            <p className="text-xs text-muted-foreground text-pretty">
-              Accès hors ligne total · Fonctionne sans connexion
-            </p>
-          </div>
-          <div className="flex items-center gap-1 shrink-0">
-            <Button size="sm" className="h-8 text-xs" onClick={handleInstall}>
-              Installer
-            </Button>
-            <button
-              type="button"
-              onClick={() => setDismissed(true)}
-              className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground"
-              aria-label="Fermer"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </div>
+
+          {/* Instructions iOS Safari */}
+          {showIosHint && (
+            <div className="px-4 pb-3 border-t border-border pt-2.5 bg-muted/40">
+              <p className="text-xs font-semibold text-foreground mb-1.5">
+                Installation sur iOS Safari :
+              </p>
+              <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+                <li>Appuyez sur <strong className="text-foreground">Partager</strong> <Share2 className="w-3 h-3 inline-block mx-0.5 text-primary" /> en bas de Safari</li>
+                <li>Faites défiler et appuyez sur <strong className="text-foreground">«&nbsp;Sur l'écran d'accueil&nbsp;»</strong></li>
+                <li>Appuyez sur <strong className="text-foreground">Ajouter</strong> — terminé !</li>
+              </ol>
+            </div>
+          )}
         </div>
       ) : null}
     </div>

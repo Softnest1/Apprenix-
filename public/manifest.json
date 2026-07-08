@@ -1,84 +1,108 @@
 {
     "name": "Apprenix — Plateforme éducative gratuite",
     "short_name": "Apprenix",
-    "description": "Plateforme éducative 100% gratuite pour tous les niveaux scolaires. Aide aux devoirs IA, flashcards, révision, organisation.",
-    "start_url": "/",
+    "description": "Plateforme éducative 100% gratuite pour tous les niveaux scolaires. Aide aux devoirs, flashcards, révision, organisation.",
+    "start_url": "/?source=pwa",
     "scope": "/",
-    "id": "apprenix-pwa",
+    "id": "apprenix-pwa-v2",
     "display": "standalone",
-    "display_override": ["standalone", "minimal-ui"],
+    "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
     "orientation": "any",
     "theme_color": "#FF6B0A",
     "background_color": "#F5F7FB",
     "lang": "fr",
     "dir": "ltr",
-    "categories": [
-        "education",
-        "productivity"
-    ],
+    "categories": ["education", "productivity"],
     "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
-    "icons": [
+
+    "launch_handler": {
+        "client_mode": ["navigate-existing", "auto"]
+    },
+
+    "handle_links": "preferred",
+    "capture_links": "existing-client-navigate",
+
+    "edge_side_panel": {
+        "preferred_width": 400
+    },
+
+    "protocol_handlers": [
         {
-            "src": "/icons/icon-72x72.png?v=9",
-            "sizes": "72x72",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/icons/icon-96x96.png?v=9",
-            "sizes": "96x96",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/icons/icon-128x128.png?v=9",
-            "sizes": "128x128",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/icons/icon-144x144.png?v=9",
-            "sizes": "144x144",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/icons/icon-152x152.png?v=9",
-            "sizes": "152x152",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/icons/icon-192x192.png?v=9",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/icons/icon-384x384.png?v=9",
-            "sizes": "384x384",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/icons/icon-512x512.png?v=9",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "/icons/icon-maskable-192x192.png?v=9",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "maskable"
-        },
-        {
-            "src": "/icons/icon-maskable-512x512.png?v=9",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "maskable"
+            "protocol": "web+apprenix",
+            "url": "/?action=%s"
         }
     ],
+
+    "file_handlers": [
+        {
+            "action": "/ressources",
+            "accept": {
+                "text/plain": [".txt"],
+                "text/markdown": [".md"],
+                "text/csv": [".csv"]
+            },
+            "icons": [
+                { "src": "/icons/icon-96x96.png?v=9", "sizes": "96x96" }
+            ],
+            "launch_type": "single-client"
+        }
+    ],
+
+    "share_target": {
+        "action": "/aide-devoirs",
+        "method": "GET",
+        "enctype": "application/x-www-form-urlencoded",
+        "params": {
+            "title": "title",
+            "text": "text",
+            "url": "url"
+        }
+    },
+
+    "shortcuts": [
+        {
+            "name": "Aide aux devoirs",
+            "short_name": "Aide",
+            "description": "Obtenir de l'aide pour tes devoirs",
+            "url": "/aide-devoirs?source=shortcut",
+            "icons": [{ "src": "/icons/icon-96x96.png?v=9", "sizes": "96x96" }]
+        },
+        {
+            "name": "Flashcards",
+            "short_name": "Flashcards",
+            "description": "Réviser avec les flashcards",
+            "url": "/flashcards?source=shortcut",
+            "icons": [{ "src": "/icons/icon-96x96.png?v=9", "sizes": "96x96" }]
+        },
+        {
+            "name": "Organisation",
+            "short_name": "Agenda",
+            "description": "Gérer mon planning et mes tâches",
+            "url": "/organisation?source=shortcut",
+            "icons": [{ "src": "/icons/icon-96x96.png?v=9", "sizes": "96x96" }]
+        },
+        {
+            "name": "Mode Deep Work",
+            "short_name": "Focus",
+            "description": "Démarrer une session de concentration",
+            "url": "/focus?source=shortcut",
+            "icons": [{ "src": "/icons/icon-96x96.png?v=9", "sizes": "96x96" }]
+        }
+    ],
+
+    "icons": [
+        { "src": "/icons/icon-72x72.png?v=9",   "sizes": "72x72",   "type": "image/png", "purpose": "any" },
+        { "src": "/icons/icon-96x96.png?v=9",   "sizes": "96x96",   "type": "image/png", "purpose": "any" },
+        { "src": "/icons/icon-128x128.png?v=9", "sizes": "128x128", "type": "image/png", "purpose": "any" },
+        { "src": "/icons/icon-144x144.png?v=9", "sizes": "144x144", "type": "image/png", "purpose": "any" },
+        { "src": "/icons/icon-152x152.png?v=9", "sizes": "152x152", "type": "image/png", "purpose": "any" },
+        { "src": "/icons/icon-192x192.png?v=9", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+        { "src": "/icons/icon-384x384.png?v=9", "sizes": "384x384", "type": "image/png", "purpose": "any" },
+        { "src": "/icons/icon-512x512.png?v=9", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+        { "src": "/icons/icon-maskable-192x192.png?v=9", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+        { "src": "/icons/icon-maskable-512x512.png?v=9", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    ],
+
     "screenshots": [
         {
             "src": "/og-image.png",
@@ -95,70 +119,7 @@
             "label": "Apprenix — Application mobile"
         }
     ],
-    "shortcuts": [
-        {
-            "name": "Aide aux devoirs IA",
-            "short_name": "Aide IA",
-            "description": "Obtenir de l'aide pour tes devoirs avec l'IA",
-            "url": "/aide-ia",
-            "icons": [
-                {
-                    "src": "/icons/icon-96x96.png?v=9",
-                    "sizes": "96x96"
-                }
-            ]
-        },
-        {
-            "name": "Flashcards",
-            "short_name": "Flashcards",
-            "description": "Réviser avec les flashcards",
-            "url": "/flashcards",
-            "icons": [
-                {
-                    "src": "/icons/icon-96x96.png?v=9",
-                    "sizes": "96x96"
-                }
-            ]
-        },
-        {
-            "name": "Organisation",
-            "short_name": "Agenda",
-            "description": "Gérer mon planning et mes tâches",
-            "url": "/organisation",
-            "icons": [
-                {
-                    "src": "/icons/icon-96x96.png?v=9",
-                    "sizes": "96x96"
-                }
-            ]
-        },
-        {
-            "name": "Ressources",
-            "short_name": "Ressources",
-            "description": "Accéder aux fiches de révision et cours",
-            "url": "/ressources",
-            "icons": [
-                {
-                    "src": "/icons/icon-96x96.png?v=9",
-                    "sizes": "96x96"
-                }
-            ]
-        }
-    ],
+
     "related_applications": [],
-    "prefer_related_applications": false,
-    "capture_links": "none",
-    "handle_links": "auto",
-    "edge_side_panel": {
-        "preferred_width": 400
-    },
-    "share_target": {
-        "action": "/aide-ia",
-        "method": "GET",
-        "params": {
-            "title": "title",
-            "text": "text",
-            "url": "url"
-        }
-    }
+    "prefer_related_applications": false
 }

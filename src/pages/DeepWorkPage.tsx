@@ -1,6 +1,6 @@
 import {CheckCircle,
   ChevronLeft, Pause, Play, RotateCcw, Volume2, VolumeX,
-  X, Zap, 
+  X, Zap,
 } from 'lucide-react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { useApp } from '@/contexts/AppContext';
+import { useWakeLock } from '@/hooks/useWakeLock';
 
 // ─── Constantes ────────────────────────────────────────────────────────────────
 
@@ -168,6 +169,7 @@ type Phase = 'config' | 'running' | 'done';
 const DeepWorkPage: React.FC = () => {
   const { addXp, addActivity, addPomodoroSession } = useApp();
   const navigate = useNavigate();
+  const { isActive: wakeLockActive, isSupported: wakeLockSupported, acquire: acquireWakeLock, release: releaseWakeLock } = useWakeLock();
 
   // Config
   const [selectedDuration, setSelectedDuration] = useState(DURATIONS[0]);
@@ -255,38 +257,42 @@ const DeepWorkPage: React.FC = () => {
     setPauseCount(0);
     // Démarrer le son ici : on est dans un handler click → iOS autorisé
     startAudio(selectedSound.id as SoundId, volume);
-  }, [selectedDuration, selectedSound, volume, startAudio]);
+    // Maintenir l'écran allumé pendant la session
+    acquireWakeLock();
+  }, [selectedDuration, selectedSound, volume, startAudio, acquireWakeLock]);
 
   const handlePause = useCallback(() => {
     if (isRunning) {
       setIsRunning(false);
       setPauseCount(p => p + 1);
-      // Pause audio : suspension douce
       audioCtxRef.current?.suspend().catch(() => {});
+      releaseWakeLock();
     } else {
       setIsRunning(true);
-      // Reprise audio
       audioCtxRef.current?.resume().catch(() => {});
+      acquireWakeLock();
     }
-  }, [isRunning]);
+  }, [isRunning, acquireWakeLock, releaseWakeLock]);
 
   const handleReset = useCallback(() => {
     clearTimer();
     setIsRunning(false);
     setTimeLeft(selectedDuration.value);
     audioCtxRef.current?.suspend().catch(() => {});
-  }, [selectedDuration.value]);
+    releaseWakeLock();
+  }, [selectedDuration.value, releaseWakeLock]);
 
   const handleFinish = useCallback(() => {
     clearTimer();
     stopAudio();
     setIsRunning(false);
     setPhase('done');
+    releaseWakeLock();
     const worked = Math.round((totalSeconds - timeLeft) / 60);
     addPomodoroSession({ date: new Date().toISOString().split('T')[0], sessionCount: 1, workMinutes: worked });
     addXp(Math.round(worked * 0.5));
     addActivity(`Session Deep Work terminée (${worked} min)`);
-  }, [timeLeft, totalSeconds, addPomodoroSession, addXp, addActivity, stopAudio]);
+  }, [timeLeft, totalSeconds, addPomodoroSession, addXp, addActivity, stopAudio, releaseWakeLock]);
 
   // Tick
   useEffect(() => {
@@ -458,6 +464,22 @@ const DeepWorkPage: React.FC = () => {
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <Badge variant="outline" className="text-xs">{selectedSound.emoji} {selectedSound.label}</Badge>
               {pauseCount > 0 && <span>{pauseCount} pause{pauseCount > 1 ? 's' : ''}</span>}
+              {wakeLockSupported && (
+                <span
+                  title={wakeLockActive ? 'Écran maintenu allumé' : 'Verrouillage écran inactif'}
+                  className={`flex items-center gap-1 text-xs ${wakeLockActive ? 'text-success' : 'text-muted-foreground/50'}`}
+                >
+                  {/* Icône soleil SVG léger — pas d'import lucide supplémentaire */}
+                  <svg viewBox="0 0 16 16" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                    <circle cx="8" cy="8" r="3" />
+                    <line x1="8" y1="1" x2="8" y2="3" /><line x1="8" y1="13" x2="8" y2="15" />
+                    <line x1="1" y1="8" x2="3" y2="8" /><line x1="13" y1="8" x2="15" y2="8" />
+                    <line x1="3" y1="3" x2="4.5" y2="4.5" /><line x1="11.5" y1="11.5" x2="13" y2="13" />
+                    <line x1="13" y1="3" x2="11.5" y2="4.5" /><line x1="4.5" y1="11.5" x2="3" y2="13" />
+                  </svg>
+                  {wakeLockActive ? 'Écran actif' : ''}
+                </span>
+              )}
             </div>
           </div>
         )}

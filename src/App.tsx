@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect } from 'react';
+import React, { lazy, Suspense, useEffect, useMemo } from 'react';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import AccessibilityToolbar, { A11yPrefsProvider } from '@/components/AccessibilityToolbar';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
@@ -12,8 +12,10 @@ import PresentationBanner from '@/components/PresentationBanner';
 import { useGoogleAnalytics } from '@/hooks/useGoogleAnalytics';
 import { Toaster } from '@/components/ui/sonner';
 import { AppProvider } from '@/contexts/AppContext';
+import { useApp } from '@/contexts/AppContext';
 import { CookieConsentProvider } from '@/hooks/CookieConsentProvider';
 import { useCookieConsent } from '@/hooks/useCookieConsent';
+import { useBadging } from '@/hooks/useBadging';
 import { useOfflineCache } from '@/hooks/useOfflineCache';
 import { ROUTE_PREFETCH } from '@/lib/prefetch';
 import NotFound from './pages/NotFound';
@@ -47,7 +49,16 @@ function prefetchCriticalPages() {
 // ─── Composant interne avec accès au hook (doit être dans Router) ─────────────
 const AppContent: React.FC = () => {
   const { showBanner, acceptAll, rejectAll, saveCustom } = useCookieConsent();
+  const { flashcards } = useApp();
   useGoogleAnalytics();
+
+  // Badge PWA — nombre de flashcards à réviser aujourd'hui
+  const today = new Date().toISOString().split('T')[0];
+  const dueCount = useMemo(
+    () => flashcards.filter(c => c.nextReview <= today).length,
+    [flashcards, today],
+  );
+  useBadging(dueCount);
 
   // Pré-cache des données critiques pour l'accès hors ligne
   useOfflineCache();

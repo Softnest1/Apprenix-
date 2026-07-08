@@ -16,50 +16,84 @@ function detectPlatform(): Platform {
   return 'unknown';
 }
 
-export function usePWAInstall() {
-  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstalled,   setIsInstalled]   = useState(
+function isStandalone(): boolean {
+  return (
     window.matchMedia('(display-mode: standalone)').matches ||
     window.matchMedia('(display-mode: minimal-ui)').matches ||
-    (navigator as Navigator & { standalone?: boolean }).standalone === true,
+    window.matchMedia('(display-mode: window-controls-overlay)').matches ||
+    (navigator as Navigator & { standalone?: boolean }).standalone === true
+  );
+}
+
+const DISMISS_KEY = 'apprenix:pwa-install-dismissed';
+
+export function usePWAInstall() {
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [isInstalled, setIsInstalled]     = useState(isStandalone);
+  const [dismissed, setDismissed]         = useState(
+    () => localStorage.getItem(DISMISS_KEY) === '1',
   );
   const [platform] = useState<Platform>(detectPlatform);
 
   useEffect(() => {
+    // Capturer le prompt d'installation natif (Chrome/Edge/Android)
     const onPrompt = (e: Event) => {
       e.preventDefault();
       setInstallPrompt(e as BeforeInstallPromptEvent);
     };
     window.addEventListener('beforeinstallprompt', onPrompt);
 
-    const mq = window.matchMedia('(display-mode: standalone)');
-    const onMqChange = (e: MediaQueryListEvent) => {
+    // Écouter l'installation effective
+    const onInstalled = () => {
+      setIsInstalled(true);
+      setInstallPrompt(null);
+      localStorage.removeItem(DISMISS_KEY);
+    };
+    window.addEventListener('appinstalled', onInstalled);
+
+    // Surveiller les changements de display-mode (standalone/WCO)
+    const mqStandalone = window.matchMedia('(display-mode: standalone)');
+    const mqWCO        = window.matchMedia('(display-mode: window-controls-overlay)');
+    const onMqChange   = (e: MediaQueryListEvent) => {
       if (e.matches) { setIsInstalled(true); setInstallPrompt(null); }
     };
-    mq.addEventListener('change', onMqChange);
+    mqStandalone.addEventListener('change', onMqChange);
+    mqWCO.addEventListener('change', onMqChange);
 
     return () => {
       window.removeEventListener('beforeinstallprompt', onPrompt);
-      mq.removeEventListener('change', onMqChange);
+      window.removeEventListener('appinstalled', onInstalled);
+      mqStandalone.removeEventListener('change', onMqChange);
+      mqWCO.removeEventListener('change', onMqChange);
     };
   }, []);
 
-  const triggerInstall = useCallback(async (): Promise<'accepted' | 'dismissed' | 'unavailable'> => {
-    if (!installPrompt) return 'unavailable';
-    await installPrompt.prompt();
-    const { outcome } = await installPrompt.userChoice;
-    if (outcome === 'accepted') {
-      setInstallPrompt(null);
-      setIsInstalled(true);
-    }
-    return outcome;
-  }, [installPrompt]);
+  const triggerInstall = useCallback(
+    async (): Promise<'accepted' | 'dismissed' | 'unavailable'> => {
+      if (!installPrompt) return 'unavailable';
+      await installPrompt.prompt();
+      const { outcome } = await installPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setInstallPrompt(null);
+        setIsInstalled(true);
+      }
+      return outcome;
+    },
+    [installPrompt],
+  );
+
+  const dismiss = useCallback(() => {
+    setDismissed(true);
+    localStorage.setItem(DISMISS_KEY, '1');
+  }, []);
 
   return {
     installPrompt,
     isInstalled,
+    dismissed,
     platform,
     canInstall: !!installPrompt && !isInstalled,
     triggerInstall,
+    dismiss,
   };
 }

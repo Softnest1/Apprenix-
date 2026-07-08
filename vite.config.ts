@@ -24,10 +24,12 @@ export default defineConfig(({ mode }) => {
         workbox: {
           skipWaiting: true,
           clientsClaim: true,
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,woff,ttf}'],
+          cleanupOutdatedCaches: true,
+          navigationPreload: true,
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2,woff,ttf,otf}'],
           additionalManifestEntries: [
-            { url: '/offline.html', revision: '5' },
-            { url: '/manifest.json', revision: '10' },
+            { url: '/offline.html', revision: '6' },
+            { url: '/manifest.json', revision: '11' },
           ],
           maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
           navigateFallback: '/index.html',
@@ -43,20 +45,19 @@ export default defineConfig(({ mode }) => {
           ],
           offlineGoogleAnalytics: false,
           runtimeCaching: [
+            // Supabase — NetworkFirst, timeout serré
             {
               urlPattern: /https:\/\/.*\.supabase\.co\/.*/i,
               handler: 'NetworkFirst',
               options: {
                 cacheName: 'supabase-data-cache',
-                networkTimeoutSeconds: 3,
-                expiration: {
-                  maxEntries: 500,
-                  maxAgeSeconds: 60 * 60 * 24 * 7,
-                },
+                networkTimeoutSeconds: 4,
+                expiration: { maxEntries: 500, maxAgeSeconds: 60 * 60 * 24 * 7 },
                 cacheableResponse: { statuses: [0, 200] },
                 matchOptions: { ignoreVary: true },
               },
             },
+            // Google Fonts — CacheFirst, 1 an
             {
               urlPattern: /https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
               handler: 'CacheFirst',
@@ -66,15 +67,49 @@ export default defineConfig(({ mode }) => {
                 cacheableResponse: { statuses: [0, 200] },
               },
             },
+            // Images locales et distantes — StaleWhileRevalidate
             {
-              urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)(\?.*)?$/i,
+              urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif|ico)(\?.*)?$/i,
               handler: 'StaleWhileRevalidate',
               options: {
                 cacheName: 'images-cache',
-                expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 60 },
+                expiration: { maxEntries: 400, maxAgeSeconds: 60 * 60 * 24 * 60 },
                 cacheableResponse: { statuses: [0, 200] },
               },
             },
+            // Audio / fichiers sonores (ambiances Deep Work)
+            {
+              urlPattern: /\.(?:mp3|ogg|wav|opus|m4a|aac)(\?.*)?$/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'audio-cache',
+                expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 90 },
+                cacheableResponse: { statuses: [0, 200] },
+                rangeRequests: true,
+              },
+            },
+            // YouTube nocookie (ChansonsEduPage) — NetworkFirst, fallback cache
+            {
+              urlPattern: /https:\/\/www\.youtube(?:-nocookie)?\.com\/.*/i,
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'youtube-embed-cache',
+                networkTimeoutSeconds: 5,
+                expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 3 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            // Données éducation nationale
+            {
+              urlPattern: /https:\/\/data\.education\.gouv\.fr\/.*/i,
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'education-api-cache',
+                expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 7 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            // JSON / XML statiques (hors Supabase)
             {
               urlPattern: /https:\/\/(?!.*supabase).*\.(json|xml)(\?.*)?$/i,
               handler: 'StaleWhileRevalidate',
@@ -84,6 +119,7 @@ export default defineConfig(({ mode }) => {
                 cacheableResponse: { statuses: [0, 200] },
               },
             },
+            // CDN externes (jsDelivr, unpkg)
             {
               urlPattern: /https:\/\/(cdn\.jsdelivr\.net|unpkg\.com)\/.*/i,
               handler: 'CacheFirst',
@@ -96,9 +132,7 @@ export default defineConfig(({ mode }) => {
           ],
         },
         manifest: false,
-        devOptions: {
-          enabled: false,
-        },
+        devOptions: { enabled: false },
       }),
     ],
     resolve: {
