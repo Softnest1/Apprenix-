@@ -15,15 +15,18 @@
 import {
   Award,
   BookOpen,
+  Brain,
   ChevronDown,
   ChevronRight,
   ClipboardList,
+  Eye,
   ExternalLink,
   FileText,
   GraduationCap,
   Heart,
   HelpCircle,
   Info,
+  Layers,
   Lock,
   Mail,
   MapPin,
@@ -109,29 +112,38 @@ const USER_TYPES: UserTypeCard[] = [
     badgeColor: 'bg-chart-3/10 text-chart-3 border-chart-3/20',
   },
   {
-    id: 'inspecteur',
-    icon: Shield,
-    label: 'Contrôleur / Inspecteur',
-    description: 'Accès direct à toute la documentation de conformité réglementaire.',
+    id: 'visiteur',
+    icon: Eye,
+    label: 'Visiteur',
+    description: 'Découvrez Apprenix sans inscription — explorez les ressources librement.',
     items: [
-      'Déclaration d\'accessibilité WCAG 2.1 AA / RGAA 4.1',
-      'Mentions légales & éditeur responsable',
-      'Politique de modération du contenu',
-      'Procédures qualité et conformité',
+      'Accès aux quiz et flashcards en mode démo',
+      'Présentation des outils et fonctionnalités',
+      'Ressources publiques du programme officiel',
+      'Créez un compte gratuitement pour tout débloquer',
     ],
-    cta: 'Documentation complète',
-    href: '/espace-public/informations',
-    accent: 'border-success/30 bg-success/5',
-    badgeColor: 'bg-success/10 text-success border-success/20',
+    cta: 'Explorer sans compte',
+    href: '/espace-public',
+    accent: 'border-chart-2/30 bg-chart-2/5',
+    badgeColor: 'bg-chart-2/10 text-chart-2 border-chart-2/20',
   },
 ];
 
 interface StatItem { value: string; label: string; icon: React.ElementType; }
 const STATS: StatItem[] = [
-  { value: '100 093',   label: 'ressources éducatives',    icon: BookOpen     },
+  { value: '100 000+',  label: 'ressources éducatives',    icon: BookOpen     },
   { value: '100 %',     label: 'gratuit — zéro pub',        icon: Star         },
   { value: 'CP → Bac+5', label: 'tous les niveaux couverts', icon: GraduationCap },
   { value: 'RGPD',      label: 'conforme — données protégées', icon: Lock      },
+];
+
+// ─── Statistiques de contenu détaillées ──────────────────────────────────────
+interface ContentStat { value: string; label: string; sublabel: string; icon: React.ElementType; color: string; }
+const CONTENT_STATS: ContentStat[] = [
+  { value: '96 846', label: 'flashcards',    sublabel: 'cartes de révision',     icon: Brain,      color: 'text-primary bg-primary/10' },
+  { value: '3 064',  label: 'quiz',          sublabel: 'questions interactives',  icon: HelpCircle, color: 'text-chart-3 bg-chart-3/10' },
+  { value: '156',    label: 'packs',         sublabel: 'lots thématiques',        icon: Layers,     color: 'text-chart-4 bg-chart-4/10' },
+  { value: '27',     label: 'fiches méthode', sublabel: 'guides pas à pas',       icon: BookOpen,   color: 'text-chart-2 bg-chart-2/10' },
 ];
 
 interface HowStep { num: string; title: string; desc: string; icon: React.ElementType; }
@@ -450,6 +462,39 @@ const EspacePublicPage: React.FC = () => {
                 </div>
                 <p className="text-lg font-extrabold text-foreground text-balance leading-tight">{s.value}</p>
                 <p className="text-xs text-muted-foreground text-pretty leading-snug">{s.label}</p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ── Statistiques de contenu ── */}
+      <section aria-labelledby="contenu-stats-titre">
+        <div className="mb-5">
+          <h2 id="contenu-stats-titre" className="text-base md:text-lg font-bold text-foreground flex items-center gap-2">
+            <Layers className="w-5 h-5 text-primary shrink-0" aria-hidden="true" />
+            Notre contenu en chiffres
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Des ressources vérifiées, alignées sur les programmes officiels — toujours gratuites.
+          </p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {CONTENT_STATS.map(s => {
+            const Icon = s.icon;
+            return (
+              <div
+                key={s.label}
+                className="rounded-2xl border border-border bg-card p-5 flex flex-col gap-3"
+              >
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${s.color}`}>
+                  <Icon className="w-5 h-5" aria-hidden="true" />
+                </div>
+                <div>
+                  <p className="text-2xl font-extrabold text-foreground tabular-nums leading-none">{s.value}</p>
+                  <p className="text-sm font-semibold text-foreground mt-0.5">{s.label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 text-pretty">{s.sublabel}</p>
+                </div>
               </div>
             );
           })}
