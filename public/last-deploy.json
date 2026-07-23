@@ -1,9 +1,9 @@
 {
-  "lastDeploy": "2026-07-22T08:30:27Z",
-  "dateFr":     "22/07/2026 à 08h30 UTC",
+  "lastDeploy": "2026-07-23T08:31:33Z",
+  "dateFr":     "23/07/2026 à 08h31 UTC",
   "trigger":    "schedule",
   "reason":     "Déploiement automatique quotidien",
-  "runId":      "29904249967",
+  "runId":      "29991437335",
   "status":     "success",
   "branch":     "master",
   "site":       "https://apprenix.xyz"
